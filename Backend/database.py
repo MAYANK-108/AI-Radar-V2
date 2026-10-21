@@ -5,7 +5,7 @@ from sqlalchemy.orm import declarative_base,sessionmaker
 
 load_dotenv()
 
-db_username = os.getenv("username")
+db_username = os.getenv("DB_USER")
 db_pswd = os.getenv("password")
 db_port = os.getenv("port")
 db_host = os.getenv("host")
@@ -15,15 +15,11 @@ Database_URL = f"postgresql://{db_username}:{db_pswd}@{db_host}:{db_port}/{db_na
 engine = create_engine(Database_URL)
 
 SessionLocal = sessionmaker(bind=engine)
-base = declarative_base()
+Base = declarative_base()
 
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
-        db.close()
-
-    
-
-
+        db.close() 
