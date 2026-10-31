@@ -1,4 +1,6 @@
 import feedparser
+from bs4 import BeautifulSoup
+import re
 RSS_FEEDS = [
     {
         "url" : "https://techcrunch.com/category/artificial-intelligence/feed/",
@@ -10,7 +12,7 @@ RSS_FEEDS = [
     },
     {
         "url" : "https://www.producthunt.com/feed",
-        "source" : "Product Hunt"
+        "source" : "Product Hunt"   
     }
 ]
 def fetch_articles():
@@ -18,13 +20,31 @@ def fetch_articles():
 
     for feed in RSS_FEEDS:
         info = feedparser.parse(feed["url"])
+
         for feed_info in info.entries[:6]:
             url = feed_info.get("link")
             if not url:
                 continue
+
+            raw_summary = feed_info.get("summary")
+            clean_summary = None
+            if raw_summary:
+                soup = BeautifulSoup(raw_summary, "html.parser")
+
+                for link_tag in soup.find_all("a"):
+                    link_tag.decompose()
+                    
+                extracted_text = soup.get_text(separator=" ", strip=True)
+                extracted_text = re.sub(r'\|', '', extracted_text)
+                extracted_text = re.sub(r'\s+', ' ', extracted_text).strip()
+
+                if len(extracted_text.split()) >= 5:
+                    clean_summary = extracted_text 
+
+                
             articles.append({
                 "title": feed_info.get("title","No title found"),
-                "summary": feed_info.get("summary"),
+                "summary": clean_summary,
                 "url": url,
                 "source": feed["source"],
             })
