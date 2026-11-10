@@ -26,9 +26,10 @@ def call_groq(prompt):
        model=GROQ_MODEL,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.0,
-        max_tokens=400
+        max_tokens=2000
     )
     raw_output = response.choices[0].message.content
+    print(response.choices[0].finish_reason, repr(response.choices[0].message.content))     
     return parse_score(raw_output)
     
 def score_article(title: str, summary: str | None) -> int | None:
